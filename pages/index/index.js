@@ -13,6 +13,8 @@ async function InitDownload() {
   let modDepsData = [];
 
   let formattedDLUrls = [];
+
+  let notFoundMods = [];
   
   for (const link of links) {
     linksModData.push(await window.electronAPI.getModData(link));
@@ -21,13 +23,18 @@ async function InitDownload() {
   modDepsLinks.push(...await getDependencyLinks(linksModData));
 
   for (const link of modDepsLinks) {
-    modDepsData.push(await window.electronAPI.getModData(link));
+    let data = await window.electronAPI.getModData(link);
+    if (Object.hasOwn(data, "message")) {
+      notFoundMods.push(link);
+      console.log(`Could not find mod: ${link}`);
+      continue;
+    }
+    modDepsData.push(data);
   }
   
   formattedDLUrls.push(...formatUrls([...linksModData, ...modDepsData]))
 
   formattedDLUrls.forEach(object => {
-    console.log(object);
     window.electronAPI.downloadMod(object.url, object.file_name);
   });
 
@@ -36,19 +43,16 @@ async function InitDownload() {
   //   linksModData.push(...await getDependencyLinks(
   //     links.map(window.electronAPI.getModData(element))))
   // });
-  console.log(linksModData);
-  console.log(modDepsData);
-  console.log(formattedDLUrls);
 }
 
 async function getDependencyLinks(modData) {
   return (await Promise.all(
     modData.map(async (element) => {
       const modJson = await element;
-      console.log(await element)
 
       const release = modJson.releases.at(-1);
       const dependencies = release.info_json.dependencies
+      
       return dependencies
         .map(dep => dep.split(" ")[0])
         .filter(id => !/\?|!|base/.test(id))
@@ -61,6 +65,7 @@ function formatUrls(urlArray)
 {
   let formattedObjs = [];
   urlArray.forEach(object => {
+    console.log(object);
     let release = object.releases.at(-1);
     let version = release.version;
     let urlName = object.name;
