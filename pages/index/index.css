@@ -1,0 +1,23 @@
+body {
+    background-color: rgb(33, 33, 33);
+    color: white;
+    display: flex;
+    flex-direction: column;
+}
+
+#mod_container {
+    display: flex;
+    flex-direction: column;
+}
+
+.mod_list {
+    display: flex;
+    flex-direction: column;
+    justify-content: start;
+}
+
+.mod_list ul {
+    list-style-type: none;
+    margin: 0;
+    padding: 0;
+}

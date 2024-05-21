@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8" />
+    <!-- https://developer.mozilla.org/en-US/docs/Web/HTTP/CSP -->
+    <meta
+      http-equiv="Content-Security-Policy"
+      content="default-src 'self'; script-src 'self'"
+    />
+    <meta
+      http-equiv="X-Content-Security-Policy"
+      content="default-src 'self'; script-src 'self'"
+    />
+    <link rel="stylesheet" href="index.css">
+    <title>Factorio Mod Downloader</title>
+  </head>
+  <header>
+    <h1>Factorio Mod Downloader</h1>
+  </header>
+  <body>
+    <div id="mod_container">
+      <div>
+        <label for="mod_dir">Mod Directory</label>
+        <input id="mod_dir" type="text">
+        <button id="btn_browse_mod">Browse</button>
+        <button id="save_settings">Save</button>
+      </div>
+      <div id="mod_links">
+        <p>Mod Download links</p>
+        <textarea id="mod_links_textarea"></textarea>
+      </div>
+    </div>
+    <div id="bottom_buttons">
+      <!-- <Button id="btn_settings">Settings</Button> -->
+      <button id="btn_download">Download</button>
+    </div>
+  </body>
+  <footer>
+
+  </footer>
+  <script src="../../renderer.js"></script>
+  <script src="./index.js"></script>
+</html>
