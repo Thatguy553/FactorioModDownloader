@@ -34,15 +34,39 @@ async function InitDownload() {
   
   formattedDLUrls.push(...formatUrls([...linksModData, ...modDepsData]))
 
-  formattedDLUrls.forEach(object => {
-    window.electronAPI.downloadMod(object.url, object.file_name);
-  });
+  const progBar = document.getElementById("dl_prog");
+  const errP = document.getElementById("errors");
+  let errors = [];
 
-  // links.forEach(async element => {
-  //   console.log(element);
-  //   linksModData.push(...await getDependencyLinks(
-  //     links.map(window.electronAPI.getModData(element))))
-  // });
+  try {
+    for (let index = 0; index < formattedDLUrls.length; index++) {
+      const object = formattedDLUrls[index];
+
+      let result = await window.electronAPI.downloadMod(object.url, object.file_name);
+      if (typeof result == "object") {
+        console.log(result)
+        errors.push(result);
+      }
+
+      progBar.value = ((index / formattedDLUrls.length) * 100);
+      
+      if (errors.length > 0) {
+        let err = errors.map(function(err) {
+          return err['file_name'];
+        });
+
+        errP.innerText = `Mods Not Downloaded:\n ${err}`;
+        return;
+      };
+
+      errP.innerText = "Mods Downloaded."
+    }
+
+    console.log("Downloads Finished");
+    progBar.value = 100;
+  } catch (error) {
+    console.log(error);
+  };
 }
 
 async function getDependencyLinks(modData) {
@@ -53,10 +77,23 @@ async function getDependencyLinks(modData) {
       const release = modJson.releases.at(-1);
       const dependencies = release.info_json.dependencies
       
-      return dependencies
-        .map(dep => dep.split(" ")[0])
-        .filter(id => !/\?|!|base/.test(id))
-        .map(id => `https://re146.dev/factorio/mods/modinfo?id=${id}`)
+      let links = [];
+
+      dependencies.forEach(link => {
+        if (link.includes("base")) { return; }
+        if (link.substring(0, 1).includes("?")) { return; }
+        let arr = link.split(" ");
+        arr.slice(0, -2);
+
+        if (arr.length > 1) {
+          arr = arr.join("%20");
+          links.push(`https://re146.dev/factorio/mods/modinfo?id=${arr}`);
+          return;
+        }
+        
+        links.push(`https://re146.dev/factorio/mods/modinfo?id=${arr[0]}`);
+      });
+      return links;
     })
   )).flat()
 }
@@ -65,7 +102,6 @@ function formatUrls(urlArray)
 {
   let formattedObjs = [];
   urlArray.forEach(object => {
-    console.log(object);
     let release = object.releases.at(-1);
     let version = release.version;
     let urlName = object.name;
@@ -75,11 +111,6 @@ function formatUrls(urlArray)
 
   return formattedObjs;
 }
-
-// Settings Related
-// function OpenSettings() {
-//   window.electronAPI.browserWindow('./pages/settings/settings.html', 1920, 1080);
-// }
 
 let btn_mod = document.getElementById("btn_browse_mod");
 let btn_save = document.getElementById("save_settings");

@@ -4,6 +4,7 @@ const fs = require('fs');
 const { mkdir } = require("fs/promises");
 const { Readable } = require('stream');
 const { finished } = require('stream/promises');
+const { existsSync } = require('node:fs');
 
 const configName = './config.json';
 const config = require(configName);
@@ -94,10 +95,14 @@ async function getModData(event, modInfoUrl)
 
 async function downloadMod(event, url, fileName)
 {
+  const destination = path.resolve(config.mod_dir, fileName);
+  if (fs.existsSync(destination)) {
+    return { err: "Mod File Already Exists", file_name: fileName };
+  }
+
   const res = await fetch(url);
   if (!fs.existsSync(config.mod_dir)) await mkdir(config.mod_dir); //Optional if you already have downloads directory
 
-  const destination = path.resolve(config.mod_dir, fileName);
   const fileStream = fs.createWriteStream(destination, { flags: 'wx' });
   return await finished(Readable.fromWeb(res.body).pipe(fileStream));
 }

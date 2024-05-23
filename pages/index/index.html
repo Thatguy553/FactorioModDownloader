@@ -27,13 +27,16 @@
       </div>
       <div id="mod_links">
         <p>Mod Download links</p>
-        <textarea id="mod_links_textarea"></textarea>
+        <textarea id="mod_links_textarea" rows="10", cols="70"></textarea>
       </div>
     </div>
     <div id="bottom_buttons">
       <!-- <Button id="btn_settings">Settings</Button> -->
       <button id="btn_download">Download</button>
     </div>
+    <label for="dl_prog">Downloading progress:</label>
+    <progress id="dl_prog" value="0" max="100"> 0% </progress>
+    <p id="errors"></p>
   </body>
   <footer>
 
